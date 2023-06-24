@@ -16,3 +16,4 @@ eclipsebin
 .project
 .externalToolBuilders
 platformhome.properties
+.DS_Store
