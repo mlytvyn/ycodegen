@@ -9,16 +9,23 @@ generation logic behind the curtains.
 
 **Supported generators**
 
-- [JSON](https://joelittlejohn.github.io/jsonschema2pojo/site/1.2.1/Jsonschema2PojoTask.html) (`.json`)
-- [Open API](https://openapi-generator.tech) (`.yml`)
-- [XML binding](https://eclipse-ee4j.github.io/jaxb-ri/) (`.xsd`)
-- [WSDL](https://jakarta.ee/specifications/xml-binding/) (`.wsdl`)
-- [WADL](https://mvnrepository.com/artifact/org.jvnet.ws.wadl) (`.wadl`)
+| Ant Macro          | Generator                                                                                   |
+|--------------------|---------------------------------------------------------------------------------------------|
+| `ycodegen_json`    | [JSON](https://joelittlejohn.github.io/jsonschema2pojo/site/1.2.1/Jsonschema2PojoTask.html) |  
+| `ycodegen_openapi` | [Open API](https://openapi-generator.tech)                                                  |                
+| `ycodegen_xjc`     | [XML binding](https://eclipse-ee4j.github.io/jaxb-ri/)                                      |                
+| `ycodegen_wsdl`    | [WSDL](https://jakarta.ee/specifications/xml-binding/)                                      |                
+| `ycodegen_wadl`    | [WADL](https://mvnrepository.com/artifact/org.jvnet.ws.wadl)                                |                
 
-Code generation extension creates extension specific properties file `codegen-<ext_name>.properties`.<br>
-It will contain list of all generated files with corresponding Git hash to ensure code re-generation if source file has
-been
-changed, in other words - if you pull the code and source file is changed code generation will be re-triggered.
+Once this Extension is registered in the project, it will seamlessly integrate into the SAP Commerce Cloud build system
+and generate DTO classes for each registered schema.
+
+To ensure that build performance is not affected and DTO classes regenerated only first time or on modification this
+Extension creates file (`codegen-<ext_name>.properties`) for tracking all generated schemas for each target extension (
+where schema was registered for generation).<br>
+That file will contain list of all schemas with corresponding Git hash to ensure re-generation of the DTOs only if
+source file has been changed, in other words - if you pull the code and source file is changed code generation will be
+re-triggered.
 
 Invocation of the `ant clean` will lead to code generation during the build as well as removal of all generators
 libraries under `codegen/lib/<generator>` directory.
@@ -36,9 +43,10 @@ Representation of the file to be generated during the build
 Representation of already generated file, it will be skipped during the build
 ![Skip](docs/skip.png?raw=true)
 
-## How to use
+## How to register schema for DTO generation
 
-- add _Extension_ specific `before_build` macrodef for your _Extension_'s `buildcallbacks.xml` file.
+- add _Extension_ specific `before_build` macrodef for your _Extension_'s `buildcallbacks.xml` file,
+  like `trainingcore_before_build`
 - define generator specific macro usage, specify mandatory / optional attributes.
 - to generate DTO classes it is enough to execute build from the _Platform_ or specific _Extension_
 
@@ -95,9 +103,10 @@ Supported versions for each Code Generator
 | Generator | Default version | Other supported versions |
 |-----------|-----------------|--------------------------|
 | JSON      | 1               | -                        |
-| Open Api  | 6               | -                        |
+| Open API  | 6               | -                        |
 | XJC       | 4               | -                        |
 | WSDL      | 2               | 3, 4                     |
 | WADL      | 1               | -                        |
 
-Besides that, each Code Generator supports additional attributes provided by generator's Ant Task. Explanation for each such attribute can be found in official documentation for specific Ant Task.
+Besides that, each Code Generator supports additional attributes provided by generator's Ant Task. Explanation for each
+such attribute can be found in official documentation for specific Ant Task.
