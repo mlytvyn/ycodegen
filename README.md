@@ -72,7 +72,7 @@ Sample configuration
                           reservedWordsMapping="3dsecure=threeDSecure"/>
 
         <ycodegen_wsdl extension="trainingcore"
-                       schema="${ext.trainingcore.path}/resources/schema/openapi.wsdl"
+                       schema="${ext.trainingcore.path}/resources/schema/some-service.wsdl"
                        package="com.training.core.dto.<package name>"/>
     </sequential>
 </macrodef>
