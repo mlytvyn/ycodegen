@@ -9,7 +9,7 @@
         <then>
             <componentdef classname="org.dogsplayingpoker.ant.PropertyHelpers.ColorPropertyEvaluator"
                           name="colorpropertyevaluator"
-                          classpath="${CODEGEN_DIR}/lib/ant-colorizor.jar"/>
+                          classpath="${ext.ycodegen.path}/codegen/lib/ant-colorizor.jar"/>
             <propertyhelper>
                 <colorpropertyevaluator/>
             </propertyhelper>
@@ -29,11 +29,11 @@
                 <then>
                     <echo message="${color:bold}Codegen${color:reset} - removing all codegen-*.properties"/>
                     <delete>
-                        <fileset dir="${CODEGEN_DIR}" includes="codegen-*.properties"/>
+                        <fileset dir="${ext.ycodegen.path}/codegen" includes="codegen-*.properties"/>
                     </delete>
                     <echo message="${color:bold}Codegen${color:reset} - removing all libs"/>
                     <delete>
-                        <fileset dir="${CODEGEN_DIR}/lib">
+                        <fileset dir="${ext.ycodegen.path}/codegen/lib">
                             <include name="**/*.jar"/>
                             <exclude name="ant-colorizor.jar"/>
                         </fileset>
@@ -43,7 +43,7 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="codegen_echo">
+    <macrodef name="ycodegen_echo">
         <attribute name="profile"/>
         <attribute name="extension"/>
         <attribute name="schema"/>
@@ -80,7 +80,7 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="codegen_init">
+    <macrodef name="ycodegen_init">
         <attribute name="profile"/>
         <attribute name="extension"/>
         <attribute name="schema"/>
@@ -96,13 +96,13 @@
                             <isset property="codegen.profile.@{profile}.initialized"/>
                         </not>
                         <then>
-                            <artifact:mvn pom="${CODEGEN_DIR}/pom.xml"
+                            <artifact:mvn pom="${ext.ycodegen.path}/codegen/pom.xml"
                                           fork="true"
                                           failonerror="true"
                                           mavenVersion="3.2.5">
                                 <arg value="dependency:copy-dependencies"/>
                                 <arg value="-DexcludeTransitive=false"/>
-                                <arg value="-DoutputDirectory=${CODEGEN_DIR}/lib/@{profile}"/>
+                                <arg value="-DoutputDirectory=${ext.ycodegen.path}/codegen/lib/@{profile}"/>
                                 <arg value="-P @{profile}"/>
                                 <jvmarg line="${env.MAVEN_OPTS} ${env.JAVA_OPTS}"/>
                             </artifact:mvn>
@@ -113,14 +113,14 @@
 
                     <!-- Read codegen properties from previous execution -->
                     <if>
-                        <available file="${CODEGEN_DIR}/codegen-@{extension}.properties"/>
+                        <available file="${ext.ycodegen.path}/codegen/codegen-@{extension}.properties"/>
                         <then>
-                            <property file="${CODEGEN_DIR}/codegen-@{extension}.properties" prefix="codegen"/>
+                            <property file="${ext.ycodegen.path}/codegen/codegen-@{extension}.properties" prefix="codegen"/>
                         </then>
                     </if>
 
                     <!-- Retrieve current Git hash of the Schema file -->
-                    <exec executable="git" dir="${CODEGEN_DIR}" outputproperty="codegen.@{schema}.current-revision"
+                    <exec executable="git" dir="${ext.ycodegen.path}/codegen" outputproperty="codegen.@{schema}.current-revision"
                           failifexecutionfails="false" failonerror="false" resultproperty="return.code">
                         <arg value="hash-object"/>
                         <arg value="@{schema}"/>
@@ -130,7 +130,7 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="codegen_bind_version">
+    <macrodef name="ycodegen_bind_version">
         <attribute name="extension"/>
         <attribute name="schema"/>
         <sequential>
@@ -139,7 +139,7 @@
                     <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
                 </not>
                 <then>
-                    <propertyfile file="${CODEGEN_DIR}/codegen-@{extension}.properties"
+                    <propertyfile file="${ext.ycodegen.path}/codegen/codegen-@{extension}.properties"
                                   comment="Generated file - do not modify!">
                         <entry key="@{schema}.revision" value="${codegen.@{schema}.current-revision}"/>
                     </propertyfile>
@@ -148,24 +148,24 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="codegen_json">
+    <macrodef name="ycodegen_json">
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
         <attribute name="targetFolder" default="gensrc"/>
-        <attribute name="useBigDecimals" default="true"/>
-        <attribute name="usePrimitives" default="true"/>
-        <attribute name="serializable" default="true"/>
-        <attribute name="useTitleAsClassname" default="true"/>
-        <attribute name="useInnerClassBuilders" default="true"/>
-        <attribute name="generateBuilders" default="true"/>
+        <attribute name="useBigDecimals" default="false"/>
+        <attribute name="usePrimitives" default="false"/>
+        <attribute name="serializable" default="false"/>
+        <attribute name="useTitleAsClassname" default="false"/>
+        <attribute name="useInnerClassBuilders" default="false"/>
+        <attribute name="generateBuilders" default="false"/>
         <attribute name="propertyWordDelimiters" default="-_ "/>
-        <attribute name="includeJsr303Annotations" default="true"/>
+        <attribute name="includeJsr303Annotations" default="false"/>
         <attribute name="includeJsr305Annotations" default="false"/>
         <attribute name="includeAdditionalProperties" default="true"/>
-        <attribute name="includeConstructors" default="true"/>
-        <attribute name="includeRequiredPropertiesConstructor" default="true"/>
-        <attribute name="includeAllPropertiesConstructor" default="false"/>
+        <attribute name="includeConstructors" default="false"/>
+        <attribute name="includeRequiredPropertiesConstructor" default="false"/>
+        <attribute name="includeAllPropertiesConstructor" default="true"/>
         <sequential>
             <if>
                 <not>
@@ -191,7 +191,7 @@
 
                             <taskdef name="jsonschema2pojo" classname="org.jsonschema2pojo.ant.Jsonschema2PojoTask">
                                 <classpath>
-                                    <fileset dir="${CODEGEN_DIR}/lib/${profile}">
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${profile}">
                                         <include name="*.jar"/>
                                     </fileset>
                                 </classpath>
@@ -203,7 +203,8 @@
                                              targetDirectory="${ext.@{extension}.path}/@{targetFolder}"
                                              targetPackage="@{package}"
                                              serializable="@{serializable}"
-                                             useBigDecimals="@{useBigDecimals}" usePrimitives="@{usePrimitives}"
+                                             useBigDecimals="@{useBigDecimals}"
+                                             usePrimitives="@{usePrimitives}"
                                              useTitleAsClassname="@{useTitleAsClassname}"
                                              useInnerClassBuilders="@{useInnerClassBuilders}"
                                              generateBuilders="@{generateBuilders}"
@@ -223,7 +224,7 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="codegen_openapi">
+    <macrodef name="ycodegen_openapi">
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
@@ -255,7 +256,7 @@
 
                             <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
 
-                            <java fork="true" jar="${CODEGEN_DIR}/lib/${profile}/openapi-generator-cli-6.2.1.jar"
+                            <java fork="true" jar="${ext.ycodegen.path}/codegen/lib/${profile}/openapi-generator-cli-6.6.0.jar"
                                   failonerror="true">
                                 <jvmarg line="-Dmodels -DmodelTests=false -DmodelDocs=false"/>
                                 <arg line="generate"/>
@@ -275,7 +276,7 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="codegen_wadl">
+    <macrodef name="ycodegen_wadl">
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
@@ -307,7 +308,7 @@
 
                             <java fork="true" classname="org.jvnet.ws.wadl2java.Main" failonerror="true">
                                 <classpath>
-                                    <fileset dir="${CODEGEN_DIR}/lib/${profile}">
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${profile}">
                                         <include name="*.jar"/>
                                     </fileset>
                                 </classpath>
@@ -324,7 +325,7 @@
         </sequential>
     </macrodef>
 
-    <macrodef name="codegen_xjc">
+    <macrodef name="ycodegen_xjc">
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
@@ -357,7 +358,7 @@
 
                             <taskdef name="xjc" classname="com.sun.tools.xjc.XJC2Task">
                                 <classpath>
-                                    <fileset dir="${CODEGEN_DIR}/lib/${profile}">
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${profile}">
                                         <include name="*.jar"/>
                                     </fileset>
                                 </classpath>
@@ -370,7 +371,7 @@
                                  extension="true">
                                 <arg value="-Xannotate"/>
                                 <classpath>
-                                    <fileset dir="${CODEGEN_DIR}/lib/${profile}">
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${profile}">
                                         <include name="*.jar"/>
                                     </fileset>
                                 </classpath>

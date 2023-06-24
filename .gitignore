@@ -1,6 +1,8 @@
 codegen/lib/*
 !codegen/lib/ant-colorizor.jar
 
+codegen/codegen-*.properties
+
 *.class
 
 #general files in all extensions
