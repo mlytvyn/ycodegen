@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="ycodegen_buildcallbacks" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+    <if>
+        <and>
+            <isset property="codegen.ant.extension.color-evaluator.enabled"/>
+            <equals arg1="${codegen.ant.extension.color-evaluator.enabled}" arg2="true"/>
+        </and>
+        <then>
+            <componentdef classname="org.dogsplayingpoker.ant.PropertyHelpers.ColorPropertyEvaluator"
+                          name="colorpropertyevaluator"
+                          classpath="${CODEGEN_DIR}/lib/ant-colorizor.jar"/>
+            <propertyhelper>
+                <colorpropertyevaluator/>
+            </propertyhelper>
+        </then>
+    </if>
+
+    <target name="ycodegen_clean" description="Run cleanup actions for codegen">
+        <ycodegen_clean/>
+    </target>
+
+    <macrodef name="ycodegen_clean">
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <echo message="${color:bold}Codegen${color:reset} - removing all codegen-*.properties"/>
+                    <delete>
+                        <fileset dir="${CODEGEN_DIR}" includes="codegen-*.properties"/>
+                    </delete>
+                    <echo message="${color:bold}Codegen${color:reset} - removing all libs"/>
+                    <delete>
+                        <fileset dir="${CODEGEN_DIR}/lib">
+                            <include name="**/*.jar"/>
+                            <exclude name="ant-colorizor.jar"/>
+                        </fileset>
+                    </delete>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="codegen_echo">
+        <attribute name="profile"/>
+        <attribute name="extension"/>
+        <attribute name="schema"/>
+        <attribute name="package"/>
+        <attribute name="mode" default="generate"/>
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <if>
+                        <equals arg1="@{mode}" arg2="generate"/>
+                        <then>
+                            <var name="mode_text" value="${color:red}generating${color:reset}"/>
+                        </then>
+                        <elseif>
+                            <equals arg1="@{mode}" arg2="skip"/>
+                            <then>
+                                <var name="mode_text" value="${color:green}already generated, skipping${color:reset}"/>
+                            </then>
+                        </elseif>
+                        <else>
+                            <var name="mode_text"
+                                 value="not supported mode ${color:yellow}@{mode}${color:yellow}, only 'generate' and 'skip' supported"/>
+                        </else>
+                    </if>
+                    <echo message="\ / ${color:bold}Codegen${color:reset} [${color:cyan}@{profile}${color:reset}] | ${mode_text}"/>
+                    <echo message=" | extension: @{extension}"/>
+                    <echo message=" | schema: @{schema}"/>
+                    <echo message=" | package: @{package}"/>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="codegen_init">
+        <attribute name="profile"/>
+        <attribute name="extension"/>
+        <attribute name="schema"/>
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <!-- Init and dependencies -->
+                    <if>
+                        <not>
+                            <isset property="codegen.profile.@{profile}.initialized"/>
+                        </not>
+                        <then>
+                            <artifact:mvn pom="${CODEGEN_DIR}/pom.xml"
+                                          fork="true"
+                                          failonerror="true"
+                                          mavenVersion="3.2.5">
+                                <arg value="dependency:copy-dependencies"/>
+                                <arg value="-DexcludeTransitive=false"/>
+                                <arg value="-DoutputDirectory=${CODEGEN_DIR}/lib/@{profile}"/>
+                                <arg value="-P @{profile}"/>
+                                <jvmarg line="${env.MAVEN_OPTS} ${env.JAVA_OPTS}"/>
+                            </artifact:mvn>
+
+                            <property name="codegen.profile.@{profile}.initialized" value="true"/>
+                        </then>
+                    </if>
+
+                    <!-- Read codegen properties from previous execution -->
+                    <if>
+                        <available file="${CODEGEN_DIR}/codegen-@{extension}.properties"/>
+                        <then>
+                            <property file="${CODEGEN_DIR}/codegen-@{extension}.properties" prefix="codegen"/>
+                        </then>
+                    </if>
+
+                    <!-- Retrieve current Git hash of the Schema file -->
+                    <exec executable="git" dir="${CODEGEN_DIR}" outputproperty="codegen.@{schema}.current-revision"
+                          failifexecutionfails="false" failonerror="false" resultproperty="return.code">
+                        <arg value="hash-object"/>
+                        <arg value="@{schema}"/>
+                    </exec>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="codegen_bind_version">
+        <attribute name="extension"/>
+        <attribute name="schema"/>
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <propertyfile file="${CODEGEN_DIR}/codegen-@{extension}.properties"
+                                  comment="Generated file - do not modify!">
+                        <entry key="@{schema}.revision" value="${codegen.@{schema}.current-revision}"/>
+                    </propertyfile>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="codegen_json">
+        <attribute name="extension"/>
+        <attribute name="schema"/>
+        <attribute name="package"/>
+        <attribute name="targetFolder" default="gensrc"/>
+        <attribute name="useBigDecimals" default="true"/>
+        <attribute name="usePrimitives" default="true"/>
+        <attribute name="serializable" default="true"/>
+        <attribute name="useTitleAsClassname" default="true"/>
+        <attribute name="useInnerClassBuilders" default="true"/>
+        <attribute name="generateBuilders" default="true"/>
+        <attribute name="propertyWordDelimiters" default="-_ "/>
+        <attribute name="includeJsr303Annotations" default="true"/>
+        <attribute name="includeJsr305Annotations" default="false"/>
+        <attribute name="includeAdditionalProperties" default="true"/>
+        <attribute name="includeConstructors" default="true"/>
+        <attribute name="includeRequiredPropertiesConstructor" default="true"/>
+        <attribute name="includeAllPropertiesConstructor" default="false"/>
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <var name="profile" value="json"/>
+                    <ycodegen_init profile="${profile}" extension="@{extension}" schema="@{schema}"/>
+
+                    <if>
+                        <and>
+                            <isset property="codegen.@{schema}.revision"/>
+                            <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
+                        </and>
+                        <then>
+                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"
+                                           mode="skip"/>
+                        </then>
+                        <else>
+                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"/>
+
+                            <taskdef name="jsonschema2pojo" classname="org.jsonschema2pojo.ant.Jsonschema2PojoTask">
+                                <classpath>
+                                    <fileset dir="${CODEGEN_DIR}/lib/${profile}">
+                                        <include name="*.jar"/>
+                                    </fileset>
+                                </classpath>
+                            </taskdef>
+
+                            <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
+
+                            <jsonschema2pojo source="@{schema}"
+                                             targetDirectory="${ext.@{extension}.path}/@{targetFolder}"
+                                             targetPackage="@{package}"
+                                             serializable="@{serializable}"
+                                             useBigDecimals="@{useBigDecimals}" usePrimitives="@{usePrimitives}"
+                                             useTitleAsClassname="@{useTitleAsClassname}"
+                                             useInnerClassBuilders="@{useInnerClassBuilders}"
+                                             generateBuilders="@{generateBuilders}"
+                                             propertyWordDelimiters="@{propertyWordDelimiters}"
+                                             includeJsr303Annotations="@{includeJsr303Annotations}"
+                                             includeJsr305Annotations="@{includeJsr305Annotations}"
+                                             includeAdditionalProperties="@{includeAdditionalProperties}"
+                                             includeConstructors="@{includeConstructors}"
+                                             includeRequiredPropertiesConstructor="@{includeRequiredPropertiesConstructor}"
+                                             includeAllPropertiesConstructor="@{includeAllPropertiesConstructor}"/>
+
+                            <ycodegen_bind_version extension="@{extension}" schema="@{schema}"/>
+                        </else>
+                    </if>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="codegen_openapi">
+        <attribute name="extension"/>
+        <attribute name="schema"/>
+        <attribute name="package"/>
+        <attribute name="targetFolder" default="gensrc"/>
+        <attribute name="library" default="resttemplate"/>
+        <attribute name="reservedWordsMapping" default=""/>
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <var name="profile" value="openapi"/>
+                    <ycodegen_init profile="${profile}" extension="@{extension}" schema="@{schema}"/>
+
+                    <if>
+                        <and>
+                            <isset property="codegen.@{schema}.revision"/>
+                            <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
+                        </and>
+                        <then>
+                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"
+                                           mode="skip"/>
+                        </then>
+                        <else>
+                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"/>
+
+                            <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
+
+                            <java fork="true" jar="${CODEGEN_DIR}/lib/${profile}/openapi-generator-cli-6.2.1.jar"
+                                  failonerror="true">
+                                <jvmarg line="-Dmodels -DmodelTests=false -DmodelDocs=false"/>
+                                <arg line="generate"/>
+                                <arg line="-i @{schema}"/>
+                                <arg line="-g java"/>
+                                <arg line="--model-package @{package}"/>
+                                <arg line="--reserved-words-mappings @{reservedWordsMapping}"/>
+                                <arg line="-o ${ext.@{extension}.path}"/>
+                                <arg line="--additional-properties sourceFolder=@{targetFolder},library=@{library},annotationLibrary=none,documentationProvider=none,openApiNullable=false"/>
+                            </java>
+
+                            <ycodegen_bind_version extension="@{extension}" schema="@{schema}"/>
+                        </else>
+                    </if>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="codegen_wadl">
+        <attribute name="extension"/>
+        <attribute name="schema"/>
+        <attribute name="package"/>
+        <attribute name="targetFolder" default="gensrc"/>
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <var name="profile" value="wadl"/>
+                    <ycodegen_init profile="${profile}" extension="@{extension}" schema="@{schema}"/>
+
+                    <if>
+                        <and>
+                            <isset property="codegen.@{schema}.revision"/>
+                            <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
+                        </and>
+                        <then>
+                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"
+                                           mode="skip"/>
+                        </then>
+                        <else>
+                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"/>
+
+                            <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
+
+                            <java fork="true" classname="org.jvnet.ws.wadl2java.Main" failonerror="true">
+                                <classpath>
+                                    <fileset dir="${CODEGEN_DIR}/lib/${profile}">
+                                        <include name="*.jar"/>
+                                    </fileset>
+                                </classpath>
+                                <arg line="-p @{package}"/>
+                                <arg line="-o ${ext.@{extension}.path}/@{targetFolder}"/>
+                                <arg line="@{schema}"/>
+                            </java>
+
+                            <ycodegen_bind_version extension="@{extension}" schema="@{schema}"/>
+                        </else>
+                    </if>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="codegen_xjc">
+        <attribute name="extension"/>
+        <attribute name="schema"/>
+        <attribute name="package"/>
+        <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-binding.xml"/>
+        <attribute name="targetFolder" default="gensrc"/>
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <var name="profile" value="xjc"/>
+                    <ycodegen_init profile="${profile}" extension="@{extension}" schema="@{schema}"/>
+
+                    <if>
+                        <and>
+                            <isset property="codegen.@{schema}.revision"/>
+                            <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
+                        </and>
+                        <then>
+                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"
+                                           mode="skip"/>
+                        </then>
+                        <else>
+                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"/>
+
+                            <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
+
+                            <taskdef name="xjc" classname="com.sun.tools.xjc.XJC2Task">
+                                <classpath>
+                                    <fileset dir="${CODEGEN_DIR}/lib/${profile}">
+                                        <include name="*.jar"/>
+                                    </fileset>
+                                </classpath>
+                            </taskdef>
+
+                            <xjc schema="@{schema}"
+                                 binding="@{binding}"
+                                 package="@{package}"
+                                 destdir="${ext.@{extension}.path}/@{targetFolder}"
+                                 extension="true">
+                                <arg value="-Xannotate"/>
+                                <classpath>
+                                    <fileset dir="${CODEGEN_DIR}/lib/${profile}">
+                                        <include name="*.jar"/>
+                                    </fileset>
+                                </classpath>
+                            </xjc>
+
+                            <ycodegen_bind_version extension="@{extension}" schema="@{schema}"/>
+                        </else>
+                    </if>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="_before_clean">
+        <sequential>
+            <ycodegen_clean/>
+        </sequential>
+    </macrodef>
+
+</project>

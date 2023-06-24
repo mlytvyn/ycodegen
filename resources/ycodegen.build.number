@@ -1,0 +1,11 @@
+#Ant properties
+#Wed Jun 07 10:00:49 UTC 2023
+version.api=2211
+vendor=hybris
+group.id=de.hybris.platform
+name=ycodegen
+description=ycodegen
+builddate=20230607 0959
+releasedate=20230607 0959
+version=2211.FP1
+module.name=platform-module

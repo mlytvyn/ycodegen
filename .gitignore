@@ -1,0 +1,15 @@
+codegen/lib/*
+!codegen/lib/ant-colorizor.jar
+
+*.class
+
+#general files in all extensions
+extensioninfo.xsd
+build.xml
+gensrc
+classes
+eclipsebin
+*-testclasses.xml
+.settings
+.project
+.externalToolBuilders

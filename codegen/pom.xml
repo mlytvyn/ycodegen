@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.mlytvyn</groupId>
+    <artifactId>codegen</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>wadl</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jvnet.ws.wadl</groupId>
+                    <artifactId>wadl-cmdline</artifactId>
+                    <version>1.1.6</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>json</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jsonschema2pojo</groupId>
+                    <artifactId>jsonschema2pojo-ant</artifactId>
+                    <version>1.1.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>openapi</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-cli</artifactId>
+                    <version>6.2.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>io.swagger.codegen.v3</groupId>
+                    <artifactId>swagger-codegen-cli</artifactId>
+                    <version>3.0.36</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>xjc</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jvnet.jaxb2_commons</groupId>
+                    <artifactId>jaxb2-basics-annotate</artifactId>
+                    <version>1.1.0</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-xjc</artifactId>
+                    <version>2.2.11</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.sun.xml.bind</groupId>
+                    <artifactId>jaxb-core</artifactId>
+                    <version>2.2.11</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                    <version>2.9.8</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
+</project>
