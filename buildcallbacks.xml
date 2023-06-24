@@ -44,7 +44,7 @@
     </macrodef>
 
     <macrodef name="ycodegen_echo">
-        <attribute name="profile"/>
+        <attribute name="generator"/>
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
@@ -71,17 +71,17 @@
                                  value="not supported mode ${color:yellow}@{mode}${color:yellow}, only 'generate' and 'skip' supported"/>
                         </else>
                     </if>
-                    <echo message="\ / ${color:bold}Codegen${color:reset} [${color:cyan}@{profile}${color:reset}] | ${mode_text}"/>
-                    <echo message=" | extension: @{extension}"/>
-                    <echo message=" | schema: @{schema}"/>
-                    <echo message=" | package: @{package}"/>
+                    <echo message="\ / ${color:bold}Codegen${color:reset} [${color:cyan}@{generator}${color:reset}] | ${mode_text}"/>
+                    <echo message=" | extension: ${color:dim}@{extension}${color:reset}"/>
+                    <echo message=" | package:   ${color:dim}@{package}${color:reset}"/>
+                    <echo message=" | schema:    ${color:dim}@{schema}${color:reset}"/>
                 </then>
             </if>
         </sequential>
     </macrodef>
 
     <macrodef name="ycodegen_init">
-        <attribute name="profile"/>
+        <attribute name="generatorVersion"/>
         <attribute name="extension"/>
         <attribute name="schema"/>
         <sequential>
@@ -93,7 +93,7 @@
                     <!-- Init and dependencies -->
                     <if>
                         <not>
-                            <isset property="codegen.profile.@{profile}.initialized"/>
+                            <isset property="codegen.profile.@{generatorVersion}.initialized"/>
                         </not>
                         <then>
                             <artifact:mvn pom="${ext.ycodegen.path}/codegen/pom.xml"
@@ -102,12 +102,12 @@
                                           mavenVersion="3.2.5">
                                 <arg value="dependency:copy-dependencies"/>
                                 <arg value="-DexcludeTransitive=false"/>
-                                <arg value="-DoutputDirectory=${ext.ycodegen.path}/codegen/lib/@{profile}"/>
-                                <arg value="-P @{profile}"/>
+                                <arg value="-DoutputDirectory=${ext.ycodegen.path}/codegen/lib/@{generatorVersion}"/>
+                                <arg value="-P @{generatorVersion}"/>
                                 <jvmarg line="${env.MAVEN_OPTS} ${env.JAVA_OPTS}"/>
                             </artifact:mvn>
 
-                            <property name="codegen.profile.@{profile}.initialized" value="true"/>
+                            <property name="codegen.profile.@{generatorVersion}.initialized" value="true"/>
                         </then>
                     </if>
 
@@ -148,10 +148,81 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="ycodegen_wsdl">
+        <attribute name="extension"/>
+        <attribute name="schema"/>
+        <attribute name="package"/>
+        <attribute name="targetFolder" default="gensrc"/>
+        <attribute name="version" default="2"/>
+        <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-binding.xml"/>
+        <attribute name="keep" default="true"/>
+        <attribute name="encoding" default="UTF-8"/>
+        <attribute name="disableAuthenticator" default="true"/>
+        <attribute name="wsExtension" default="true"/>
+        <attribute name="xadditionalHeaders" default="true"/>
+        <attribute name="xnocompile" default="true"/>
+        <attribute name="xdebug" default="true"/>
+        <attribute name="verbose" default="true"/>
+        <sequential>
+            <if>
+                <not>
+                    <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
+                </not>
+                <then>
+                    <var name="generator" value="wsdl"/>
+                    <var name="generatorVersion" value="${generator}_@{version}"/>
+                    <ycodegen_init generatorVersion="${generatorVersion}" extension="@{extension}" schema="@{schema}"/>
+
+                    <if>
+                        <and>
+                            <isset property="codegen.@{schema}.revision"/>
+                            <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
+                        </and>
+                        <then>
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"
+                                           mode="skip"/>
+                        </then>
+                        <else>
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
+                                           package="@{package}"/>
+
+                            <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
+
+                            <taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport2">
+                                <classpath>
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${generatorVersion}">
+                                        <include name="*.jar"/>
+                                    </fileset>
+                                </classpath>
+                            </taskdef>
+
+                            <wsimport sourcedestdir="${ext.@{extension}.path}/@{targetFolder}"
+                                      keep="@{keep}"
+                                      encoding="@{encoding}"
+                                      disableAuthenticator="@{disableAuthenticator}"
+                                      extension="@{wsExtension}"
+                                      xadditionalHeaders="@{xadditionalHeaders}"
+                                      xdebug="@{xdebug}"
+                                      xnocompile="@{xnocompile}"
+                                      verbose="@{verbose}"
+                                      package="@{package}"
+                                      binding="@{binding}"
+                                      wsdl="@{schema}"/>
+
+                            <ycodegen_bind_version extension="@{extension}" schema="@{schema}"/>
+                        </else>
+                    </if>
+                </then>
+            </if>
+        </sequential>
+    </macrodef>
+
     <macrodef name="ycodegen_json">
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
+        <attribute name="version" default="1"/>
         <attribute name="targetFolder" default="gensrc"/>
         <attribute name="useBigDecimals" default="false"/>
         <attribute name="usePrimitives" default="false"/>
@@ -172,8 +243,9 @@
                     <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
                 </not>
                 <then>
-                    <var name="profile" value="json"/>
-                    <ycodegen_init profile="${profile}" extension="@{extension}" schema="@{schema}"/>
+                    <var name="generator" value="json"/>
+                    <var name="generatorVersion" value="${generator}_@{version}"/>
+                    <ycodegen_init generatorVersion="${generatorVersion}" extension="@{extension}" schema="@{schema}"/>
 
                     <if>
                         <and>
@@ -181,17 +253,17 @@
                             <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
                         </and>
                         <then>
-                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
                                            package="@{package}"
                                            mode="skip"/>
                         </then>
                         <else>
-                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
                                            package="@{package}"/>
 
                             <taskdef name="jsonschema2pojo" classname="org.jsonschema2pojo.ant.Jsonschema2PojoTask">
                                 <classpath>
-                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${profile}">
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${generatorVersion}">
                                         <include name="*.jar"/>
                                     </fileset>
                                 </classpath>
@@ -229,6 +301,7 @@
         <attribute name="schema"/>
         <attribute name="package"/>
         <attribute name="targetFolder" default="gensrc"/>
+        <attribute name="version" default="6"/>
         <attribute name="library" default="resttemplate"/>
         <attribute name="reservedWordsMapping" default=""/>
         <sequential>
@@ -237,8 +310,9 @@
                     <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
                 </not>
                 <then>
-                    <var name="profile" value="openapi"/>
-                    <ycodegen_init profile="${profile}" extension="@{extension}" schema="@{schema}"/>
+                    <var name="generator" value="openapi"/>
+                    <var name="generatorVersion" value="${generator}_@{version}"/>
+                    <ycodegen_init generatorVersion="${generatorVersion}" extension="@{extension}" schema="@{schema}"/>
 
                     <if>
                         <and>
@@ -246,17 +320,17 @@
                             <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
                         </and>
                         <then>
-                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
                                            package="@{package}"
                                            mode="skip"/>
                         </then>
                         <else>
-                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
                                            package="@{package}"/>
 
                             <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
 
-                            <java fork="true" jar="${ext.ycodegen.path}/codegen/lib/${profile}/openapi-generator-cli-6.6.0.jar"
+                            <java fork="true" jar="${ext.ycodegen.path}/codegen/lib/${generatorVersion}/openapi-generator-cli-6.6.0.jar"
                                   failonerror="true">
                                 <jvmarg line="-Dmodels -DmodelTests=false -DmodelDocs=false"/>
                                 <arg line="generate"/>
@@ -280,6 +354,7 @@
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
+        <attribute name="version" default="1"/>
         <attribute name="targetFolder" default="gensrc"/>
         <sequential>
             <if>
@@ -287,8 +362,9 @@
                     <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
                 </not>
                 <then>
-                    <var name="profile" value="wadl"/>
-                    <ycodegen_init profile="${profile}" extension="@{extension}" schema="@{schema}"/>
+                    <var name="generator" value="wadl"/>
+                    <var name="generatorVersion" value="${generator}_@{version}"/>
+                    <ycodegen_init generatorVersion="${generatorVersion}" extension="@{extension}" schema="@{schema}"/>
 
                     <if>
                         <and>
@@ -296,19 +372,19 @@
                             <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
                         </and>
                         <then>
-                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
                                            package="@{package}"
                                            mode="skip"/>
                         </then>
                         <else>
-                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
                                            package="@{package}"/>
 
                             <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
 
                             <java fork="true" classname="org.jvnet.ws.wadl2java.Main" failonerror="true">
                                 <classpath>
-                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${profile}">
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${generatorVersion}">
                                         <include name="*.jar"/>
                                     </fileset>
                                 </classpath>
@@ -329,6 +405,7 @@
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
+        <attribute name="version" default="4"/>
         <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-binding.xml"/>
         <attribute name="targetFolder" default="gensrc"/>
         <sequential>
@@ -337,8 +414,9 @@
                     <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
                 </not>
                 <then>
-                    <var name="profile" value="xjc"/>
-                    <ycodegen_init profile="${profile}" extension="@{extension}" schema="@{schema}"/>
+                    <var name="generator" value="xjc"/>
+                    <var name="generatorVersion" value="${generator}_@{version}"/>
+                    <ycodegen_init generatorVersion="${generatorVersion}" extension="@{extension}" schema="@{schema}"/>
 
                     <if>
                         <and>
@@ -346,19 +424,19 @@
                             <equals arg1="${codegen.@{schema}.revision}" arg2="${codegen.@{schema}.current-revision}"/>
                         </and>
                         <then>
-                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
                                            package="@{package}"
                                            mode="skip"/>
                         </then>
                         <else>
-                            <ycodegen_echo profile="${profile}" extension="@{extension}" schema="@{schema}"
+                            <ycodegen_echo generator="${generator}" extension="@{extension}" schema="@{schema}"
                                            package="@{package}"/>
 
                             <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
 
                             <taskdef name="xjc" classname="com.sun.tools.xjc.XJC2Task">
                                 <classpath>
-                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${profile}">
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${generatorVersion}">
                                         <include name="*.jar"/>
                                     </fileset>
                                 </classpath>
@@ -371,7 +449,7 @@
                                  extension="true">
                                 <arg value="-Xannotate"/>
                                 <classpath>
-                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${profile}">
+                                    <fileset dir="${ext.ycodegen.path}/codegen/lib/${generatorVersion}">
                                         <include name="*.jar"/>
                                     </fileset>
                                 </classpath>

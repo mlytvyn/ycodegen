@@ -16,7 +16,7 @@
 
     <profiles>
         <profile>
-            <id>wadl</id>
+            <id>wadl_1</id>
             <dependencies>
                 <dependency>
                     <groupId>org.jvnet.ws.wadl</groupId>
@@ -26,7 +26,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>json</id>
+            <id>json_1</id>
             <dependencies>
                 <dependency>
                     <groupId>org.jsonschema2pojo</groupId>
@@ -36,7 +36,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>openapi</id>
+            <id>openapi_6</id>
             <dependencies>
                 <dependency>
                     <groupId>org.openapitools</groupId>
@@ -51,7 +51,7 @@
             </dependencies>
         </profile>
         <profile>
-            <id>xjc</id>
+            <id>xjc_4</id>
             <dependencies>
                 <dependency>
                     <groupId>org.jvnet.jaxb2_commons</groupId>
@@ -72,6 +72,36 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-annotations</artifactId>
                     <version>2.15.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>wsdl_2</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun.xml.ws</groupId>
+                    <artifactId>wscompile</artifactId>
+                    <version>2.3.6</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>wsdl_3</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun.xml.ws</groupId>
+                    <artifactId>wscompile</artifactId>
+                    <version>3.0.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>wsdl_4</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun.xml.ws</groupId>
+                    <artifactId>wscompile</artifactId>
+                    <version>4.0.1</version>
                 </dependency>
             </dependencies>
         </profile>
