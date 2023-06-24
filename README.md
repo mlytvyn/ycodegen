@@ -9,7 +9,7 @@ generation logic behind the curtains.
 
 **Supported generators**
 
-- [JSON](https://github.com/joelittlejohn/jsonschema2pojo/wiki/Getting-Started#the-ant-task) (`.json`)
+- [JSON](https://joelittlejohn.github.io/jsonschema2pojo/site/1.2.1/Jsonschema2PojoTask.html) (`.json`)
 - [Open API](https://openapi-generator.tech) (`.yml`)
 - [XML binding](https://eclipse-ee4j.github.io/jaxb-ri/) (`.xsd`)
 - [WSDL](https://jakarta.ee/specifications/xml-binding/) (`.wsdl`)
@@ -100,4 +100,4 @@ Supported versions for each Code Generator
 | WSDL      | 2               | 3, 4                     |
 | WADL      | 1               | -                        |
 
-
+Besides that, each Code Generator supports additional attributes provided by generator's Ant Task. Explanation for each such attribute can be found in official documentation for specific Ant Task.

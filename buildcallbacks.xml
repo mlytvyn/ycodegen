@@ -115,12 +115,14 @@
                     <if>
                         <available file="${ext.ycodegen.path}/codegen/codegen-@{extension}.properties"/>
                         <then>
-                            <property file="${ext.ycodegen.path}/codegen/codegen-@{extension}.properties" prefix="codegen"/>
+                            <property file="${ext.ycodegen.path}/codegen/codegen-@{extension}.properties"
+                                      prefix="codegen"/>
                         </then>
                     </if>
 
                     <!-- Retrieve current Git hash of the Schema file -->
-                    <exec executable="git" dir="${ext.ycodegen.path}/codegen" outputproperty="codegen.@{schema}.current-revision"
+                    <exec executable="git" dir="${ext.ycodegen.path}/codegen"
+                          outputproperty="codegen.@{schema}.current-revision"
                           failifexecutionfails="false" failonerror="false" resultproperty="return.code">
                         <arg value="hash-object"/>
                         <arg value="@{schema}"/>
@@ -224,19 +226,67 @@
         <attribute name="package"/>
         <attribute name="version" default="1"/>
         <attribute name="targetFolder" default="gensrc"/>
-        <attribute name="useBigDecimals" default="false"/>
-        <attribute name="usePrimitives" default="false"/>
-        <attribute name="serializable" default="false"/>
+        <attribute name="annotationStyle" default="JACKSON2"/>
         <attribute name="useTitleAsClassname" default="false"/>
-        <attribute name="useInnerClassBuilders" default="false"/>
+        <attribute name="inclusionLevel" default="NON_NULL"/>
+        <attribute name="classNamePrefix" default=""/>
+        <attribute name="classNameSuffix" default=""/>
+        <attribute name="fileExtensions" default=""/>
+        <attribute name="customAnnotator" default=""/>
+        <attribute name="customRuleFactory" default=""/>
         <attribute name="generateBuilders" default="false"/>
-        <attribute name="propertyWordDelimiters" default="-_ "/>
-        <attribute name="includeJsr303Annotations" default="false"/>
-        <attribute name="includeJsr305Annotations" default="false"/>
+        <attribute name="includeTypeInfo" default="false"/>
+        <attribute name="useInnerClassBuilders" default="false"/>
+        <attribute name="includeConstructorPropertiesAnnotation" default="false"/>
+        <attribute name="includeGetters" default="true"/>
+        <attribute name="includeSetters" default="true"/>
         <attribute name="includeAdditionalProperties" default="true"/>
+        <attribute name="includeDynamicAccessors" default="false"/>
+        <attribute name="includeDynamicGetters" default="false"/>
+        <attribute name="includeDynamicSetters" default="false"/>
+        <attribute name="includeDynamicBuilders" default="false"/>
         <attribute name="includeConstructors" default="false"/>
+        <attribute name="constructorsRequiredPropertiesOnly" default="false"/>
         <attribute name="includeRequiredPropertiesConstructor" default="false"/>
         <attribute name="includeAllPropertiesConstructor" default="true"/>
+        <attribute name="includeCopyConstructor" default="false"/>
+        <attribute name="includeHashcodeAndEquals" default="false"/>
+        <attribute name="includeJsr303Annotations" default="false"/>
+        <attribute name="includeJsr305Annotations" default="false"/>
+        <attribute name="useOptionalForGetters" default="false"/>
+        <attribute name="includeToString" default="true"/>
+        <attribute name="initializeCollections" default="true"/>
+        <attribute name="toStringExcludes" default=""/>
+        <attribute name="outputEncoding" default="UTF-8"/>
+        <attribute name="parcelable" default="false"/>
+        <attribute name="serializable" default="false"/>
+        <attribute name="propertyWordDelimiters" default="-_ "/>
+        <attribute name="removeOldOutput" default="JSONSCHEMA"/>
+        <attribute name="skip" default="false"/>
+        <attribute name="sourceType" default="JSONSCHEMA"/>
+        <attribute name="useDoubleNumbers" default="true"/>
+        <attribute name="useBigDecimals" default="false"/>
+        <attribute name="useJodaDates" default="false"/>
+        <attribute name="useJodaLocalDates" default="false"/>
+        <attribute name="useJodaLocalTimes" default="false"/>
+        <attribute name="useLongIntegers" default="false"/>
+        <attribute name="useBigIntegers" default="false"/>
+        <attribute name="usePrimitives" default="false"/>
+        <attribute name="targetVersion" default="1.6"/>
+        <attribute name="dateTimeType" default=""/>
+        <attribute name="dateType" default=""/>
+        <attribute name="timeType" default=""/>
+        <attribute name="formatDates" default="false"/>
+        <attribute name="formatTimes" default="false"/>
+        <attribute name="formatDateTimes" default="false"/>
+        <attribute name="customDatePattern" default=""/>
+        <attribute name="customTimePattern" default=""/>
+        <attribute name="customDateTimePattern" default=""/>
+        <attribute name="refFragmentPathDelimiters" default="#/."/>
+        <attribute name="sourceSortOrder" default="OS"/>
+        <attribute name="formatTypeMapping" default=""/>
+        <attribute name="includeGeneratedAnnotation" default="true"/>
+        <attribute name="useJakartaValidation" default="false"/>
         <sequential>
             <if>
                 <not>
@@ -274,19 +324,67 @@
                             <jsonschema2pojo source="@{schema}"
                                              targetDirectory="${ext.@{extension}.path}/@{targetFolder}"
                                              targetPackage="@{package}"
-                                             serializable="@{serializable}"
-                                             useBigDecimals="@{useBigDecimals}"
-                                             usePrimitives="@{usePrimitives}"
+                                             annotationStyle="@{annotationStyle}"
                                              useTitleAsClassname="@{useTitleAsClassname}"
-                                             useInnerClassBuilders="@{useInnerClassBuilders}"
+                                             inclusionLevel="@{inclusionLevel}"
+                                             classNamePrefix="@{classNamePrefix}"
+                                             classNameSuffix="@{classNameSuffix}"
+                                             fileExtensions="@{fileExtensions}"
+                                             customAnnotator="@{customAnnotator}"
+                                             customRuleFactory="@{customRuleFactory}"
                                              generateBuilders="@{generateBuilders}"
-                                             propertyWordDelimiters="@{propertyWordDelimiters}"
+                                             includeTypeInfo="@{includeTypeInfo}"
+                                             useInnerClassBuilders="@{useInnerClassBuilders}"
+                                             includeConstructorPropertiesAnnotation="@{includeConstructorPropertiesAnnotation}"
+                                             includeGetters="@{includeGetters}"
+                                             includeSetters="@{includeSetters}"
+                                             includeAdditionalProperties="@{includeAdditionalProperties}"
+                                             includeDynamicAccessors="@{includeDynamicAccessors}"
+                                             includeDynamicGetters="@{includeDynamicGetters}"
+                                             includeDynamicSetters="@{includeDynamicSetters}"
+                                             includeDynamicBuilders="@{includeDynamicBuilders}"
+                                             includeConstructors="@{includeConstructors}"
+                                             constructorsRequiredPropertiesOnly="@{constructorsRequiredPropertiesOnly}"
+                                             includeRequiredPropertiesConstructor="@{includeRequiredPropertiesConstructor}"
+                                             includeAllPropertiesConstructor="@{includeAllPropertiesConstructor}"
+                                             includeCopyConstructor="@{includeCopyConstructor}"
+                                             includeHashcodeAndEquals="@{includeHashcodeAndEquals}"
                                              includeJsr303Annotations="@{includeJsr303Annotations}"
                                              includeJsr305Annotations="@{includeJsr305Annotations}"
-                                             includeAdditionalProperties="@{includeAdditionalProperties}"
-                                             includeConstructors="@{includeConstructors}"
-                                             includeRequiredPropertiesConstructor="@{includeRequiredPropertiesConstructor}"
-                                             includeAllPropertiesConstructor="@{includeAllPropertiesConstructor}"/>
+                                             useOptionalForGetters="@{useOptionalForGetters}"
+                                             includeToString="@{includeToString}"
+                                             initializeCollections="@{initializeCollections}"
+                                             toStringExcludes="@{toStringExcludes}"
+                                             outputEncoding="@{outputEncoding}"
+                                             parcelable="@{parcelable}"
+                                             serializable="@{serializable}"
+                                             propertyWordDelimiters="@{propertyWordDelimiters}"
+                                             removeOldOutput="@{removeOldOutput}"
+                                             skip="@{skip}"
+                                             sourceType="@{sourceType}"
+                                             useDoubleNumbers="@{useDoubleNumbers}"
+                                             useBigDecimals="@{useBigDecimals}"
+                                             useJodaDates="@{useJodaDates}"
+                                             useJodaLocalDates="@{useJodaLocalDates}"
+                                             useJodaLocalTimes="@{useJodaLocalTimes}"
+                                             useLongIntegers="@{useLongIntegers}"
+                                             useBigIntegers="@{useBigIntegers}"
+                                             usePrimitives="@{usePrimitives}"
+                                             targetVersion="@{targetVersion}"
+                                             dateTimeType="@{dateTimeType}"
+                                             dateType="@{dateType}"
+                                             timeType="@{timeType}"
+                                             formatDates="@{formatDates}"
+                                             formatTimes="@{formatTimes}"
+                                             formatDateTimes="@{formatDateTimes}"
+                                             customDatePattern="@{customDatePattern}"
+                                             customTimePattern="@{customTimePattern}"
+                                             customDateTimePattern="@{customDateTimePattern}"
+                                             refFragmentPathDelimiters="@{refFragmentPathDelimiters}"
+                                             sourceSortOrder="@{sourceSortOrder}"
+                                             formatTypeMapping="@{formatTypeMapping}"
+                                             includeGeneratedAnnotation="@{includeGeneratedAnnotation}"
+                                             useJakartaValidation="@{useJakartaValidation}"/>
 
                             <ycodegen_bind_version extension="@{extension}" schema="@{schema}"/>
                         </else>
@@ -330,7 +428,8 @@
 
                             <mkdir dir="${ext.@{extension}.path}/@{targetFolder}"/>
 
-                            <java fork="true" jar="${ext.ycodegen.path}/codegen/lib/${generatorVersion}/openapi-generator-cli-6.6.0.jar"
+                            <java fork="true"
+                                  jar="${ext.ycodegen.path}/codegen/lib/${generatorVersion}/openapi-generator-cli-6.6.0.jar"
                                   failonerror="true">
                                 <jvmarg line="-Dmodels -DmodelTests=false -DmodelDocs=false"/>
                                 <arg line="generate"/>
