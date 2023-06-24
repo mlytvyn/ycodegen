@@ -156,7 +156,7 @@
         <attribute name="package"/>
         <attribute name="targetFolder" default="gensrc"/>
         <attribute name="version" default="2"/>
-        <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-binding.xml"/>
+        <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-2-binding.xml"/>
         <attribute name="keep" default="true"/>
         <attribute name="encoding" default="UTF-8"/>
         <attribute name="disableAuthenticator" default="true"/>
@@ -504,9 +504,10 @@
         <attribute name="extension"/>
         <attribute name="schema"/>
         <attribute name="package"/>
-        <attribute name="version" default="4"/>
-        <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-binding.xml"/>
+        <attribute name="version" default="2"/>
+        <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-2-binding.xml"/>
         <attribute name="targetFolder" default="gensrc"/>
+        <attribute name="arguments" default=""/>
         <sequential>
             <if>
                 <not>
@@ -546,7 +547,7 @@
                                  package="@{package}"
                                  destdir="${ext.@{extension}.path}/@{targetFolder}"
                                  extension="true">
-                                <arg value="-Xannotate"/>
+                                <arg line="@{arguments}"/>
                                 <classpath>
                                     <fileset dir="${ext.ycodegen.path}/codegen/lib/${generatorVersion}">
                                         <include name="*.jar"/>

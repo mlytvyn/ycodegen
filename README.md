@@ -104,7 +104,7 @@ Supported versions for each Code Generator
 |-----------|-----------------|--------------------------|
 | JSON      | 1               | -                        |
 | Open API  | 6               | -                        |
-| XJC       | 4               | -                        |
+| XJC       | 2               | -                        |
 | WSDL      | 2               | 3, 4                     |
 | WADL      | 1               | -                        |
 
