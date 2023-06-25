@@ -102,13 +102,13 @@ such attribute can be found in official documentation for specific Ant Task.
 
 Supported versions for each Code Generator
 
-| Generator | Default version | Other supported versions |
-|-----------|-----------------|--------------------------|
-| JSON      | 1               | -                        |
-| Open API  | 6               | -                        |
-| XJC       | 2               | -                        |
-| WSDL      | 2               | 3, 4                     |
-| WADL      | 1               | -                        |
+| Generator | Default version | Other supported versions                                                     |
+|-----------|-----------------|------------------------------------------------------------------------------|
+| JSON      | 1               | -                                                                            |
+| Open API  | 6               | -                                                                            |
+| XJC       | 2               | 3, 4 ([Jakarta](https://eclipse-ee4j.github.io/jaxb-ri/, without extensions) |
+| WSDL      | 2               | 3, 4                                                                         |
+| WADL      | 1               | -                                                                            |
 
 #### XJC Generator
 

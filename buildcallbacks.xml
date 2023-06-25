@@ -505,7 +505,7 @@
         <attribute name="schema"/>
         <attribute name="package"/>
         <attribute name="version" default="2"/>
-        <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-2-binding.xml"/>
+        <attribute name="binding" default="${ext.ycodegen.path}/resources/schema/jaxb-@{version}-binding.xml"/>
         <attribute name="targetFolder" default="gensrc"/>
         <attribute name="arguments" default=""/>
         <sequential>
