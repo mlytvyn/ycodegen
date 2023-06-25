@@ -550,7 +550,10 @@
                                 <arg line="@{arguments}"/>
                                 <classpath>
                                     <fileset dir="${ext.ycodegen.path}/codegen/lib/${generatorVersion}">
-                                        <include name="*.jar"/>
+                                        <include name="jaxb2-basics-*.jar"/>
+                                        <include name="commons-beanutils-*.jar"/>
+                                        <include name="commons-lang-*.jar"/>
+                                        <include name="commons-logging-*.jar"/>
                                     </fileset>
                                 </classpath>
                             </xjc>

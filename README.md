@@ -31,9 +31,8 @@ Invocation of the `ant clean` will lead to code generation during the build as w
 libraries under `codegen/lib/<generator>` directory.
 
 **Important Note**: this _Extension_ will not add any 3rd-party `.jar` files to your final project distribution, it
-means that if
-there is a need in specific imports (like `javax.xml.ws.*`) those dependencies have to be specified explicitly
-via `external-dependencies.xml` file.
+means that if there is a need in specific imports (like `javax.xml.ws.*`, `org.jvnet.*`, etc.) those dependencies have
+to be specified explicitly via `external-dependencies.xml` file.
 
 ---
 
@@ -88,7 +87,7 @@ Sample configuration
 
 ### Generators
 
-Attributes to be used with every `ycodegen_xxx` generator
+Attributes to be used with every `ycodegen_xxx` generator macro
 
 | Attribute    | Default value     | Description                                                |
 |--------------|-------------------|------------------------------------------------------------|
@@ -97,6 +96,9 @@ Attributes to be used with every `ycodegen_xxx` generator
 | package      | -                 | Specify target package for DTO classes                     |
 | targetFolder | `gensrc`          | Target folder for generated DTO classes                    |
 | version      | _see table below_ | Exact version of the generator library                     |
+
+Besides that, each Code Generator supports additional attributes provided by generator's Ant Task. Explanation for each
+such attribute can be found in official documentation for specific Ant Task.
 
 Supported versions for each Code Generator
 
@@ -108,5 +110,7 @@ Supported versions for each Code Generator
 | WSDL      | 2               | 3, 4                     |
 | WADL      | 1               | -                        |
 
-Besides that, each Code Generator supports additional attributes provided by generator's Ant Task. Explanation for each
-such attribute can be found in official documentation for specific Ant Task.
+#### XJC Generator
+
+Second version of the generator is shipped with multiple [JAXB2-basics](https://github.com/highsource/jaxb2-basics)
+extensions, which can be enabled via `arguments` attribute of the `ycodegen_xjc` macro.

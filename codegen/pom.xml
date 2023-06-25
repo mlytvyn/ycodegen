@@ -52,6 +52,10 @@
         </profile>
         <profile>
             <id>xjc_2</id>
+            <properties>
+                <jaxb2-basics.version>1.11.1</jaxb2-basics.version>
+            </properties>
+
             <dependencies>
                 <dependency>
                     <groupId>javax.xml.bind</groupId>
@@ -64,24 +68,29 @@
                     <version>2.3.8</version>
                 </dependency>
                 <dependency>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                    <version>1.1.1</version>
+                </dependency>
+                <dependency>
                     <groupId>org.jvnet.jaxb2_commons</groupId>
                     <artifactId>jaxb2-basics-ant</artifactId>
-                    <version>1.11.1</version>
+                    <version>${jaxb2-basics.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.jvnet.jaxb2_commons</groupId>
                     <artifactId>jaxb2-basics-tools</artifactId>
-                    <version>1.11.1</version>
+                    <version>${jaxb2-basics.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.jvnet.jaxb2_commons</groupId>
                     <artifactId>jaxb2-basics</artifactId>
-                    <version>1.11.1</version>
+                    <version>${jaxb2-basics.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.jvnet.jaxb2_commons</groupId>
                     <artifactId>jaxb2-basics-runtime</artifactId>
-                    <version>1.11.1</version>
+                    <version>${jaxb2-basics.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.jvnet.jaxb2_commons</groupId>
@@ -92,6 +101,16 @@
                     <groupId>org.jvnet.jaxb2_commons</groupId>
                     <artifactId>jaxb2-commons-lang</artifactId>
                     <version>2.4</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jvnet.jaxb2_commons</groupId>
+                    <artifactId>jaxb2-default-value</artifactId>
+                    <version>1.1</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jvnet.jaxb2_commons</groupId>
+                    <artifactId>jaxb2-fluent-api</artifactId>
+                    <version>3.0</version>
                 </dependency>
             </dependencies>
         </profile>
