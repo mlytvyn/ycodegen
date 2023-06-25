@@ -21,8 +21,8 @@ Once this Extension is registered in the project, it will seamlessly integrate i
 and generate DTO classes for each registered schema.
 
 To ensure that build performance is not affected and DTO classes regenerated only first time or on modification this
-Extension creates file (`codegen-<ext_name>.properties`) for tracking all generated schemas for each target extension (
-where schema was registered for generation).<br>
+Extension creates file (`codegen-<ext_name>.properties`) for tracking all generated schemas for each target extension 
+(where schema was registered for generation).<br>
 That file will contain list of all schemas with corresponding Git hash to ensure re-generation of the DTOs only if
 source file has been changed, in other words - if you pull the code and source file is changed code generation will be
 re-triggered.
@@ -102,13 +102,13 @@ such attribute can be found in official documentation for specific Ant Task.
 
 Supported versions for each Code Generator
 
-| Generator | Default version | Other supported versions                                                     |
-|-----------|-----------------|------------------------------------------------------------------------------|
-| JSON      | 1               | -                                                                            |
-| Open API  | 6               | -                                                                            |
-| XJC       | 2               | 3, 4 ([Jakarta](https://eclipse-ee4j.github.io/jaxb-ri/, without extensions) |
-| WSDL      | 2               | 3, 4                                                                         |
-| WADL      | 1               | -                                                                            |
+| Generator | Default version | Other supported versions                                                      |
+|-----------|-----------------|-------------------------------------------------------------------------------|
+| JSON      | 1               | -                                                                             |
+| Open API  | 6               | -                                                                             |
+| XJC       | 2               | 3, 4 ([Jakarta](https://eclipse-ee4j.github.io/jaxb-ri/), without extensions) |
+| WSDL      | 2               | 3, 4                                                                          |
+| WADL      | 1               | -                                                                             |
 
 #### XJC Generator
 
