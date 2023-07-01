@@ -27,11 +27,11 @@
                     <available file="${ext.ycodegen.path}/bin/ycodegenserver.jar"/>
                 </not>
                 <then>
-                    <echo message="${color:bold}Codegen${color:reset} - removing all codegen-*.properties"/>
+                    <echo level="warning" message="${color:bold}Codegen${color:reset} - removing all codegen-*.properties"/>
                     <delete>
                         <fileset dir="${ext.ycodegen.path}/codegen" includes="codegen-*.properties"/>
                     </delete>
-                    <echo message="${color:bold}Codegen${color:reset} - removing all libs"/>
+                    <echo level="warning" message="${color:bold}Codegen${color:reset} - removing all libs"/>
                     <delete>
                         <fileset dir="${ext.ycodegen.path}/codegen/lib">
                             <include name="**/*.jar"/>
@@ -71,10 +71,10 @@
                                  value="not supported mode ${color:yellow}@{mode}${color:yellow}, only 'generate' and 'skip' supported"/>
                         </else>
                     </if>
-                    <echo message="\ / ${color:bold}Codegen${color:reset} [${color:cyan}@{generator}${color:reset}] | ${mode_text}"/>
-                    <echo message=" | extension: ${color:dim}@{extension}${color:reset}"/>
-                    <echo message=" | package:   ${color:dim}@{package}${color:reset}"/>
-                    <echo message=" | schema:    ${color:dim}@{schema}${color:reset}"/>
+                    <echo level="info" message="${color:reset}\ / ${color:bold}Codegen${color:reset} [${color:cyan}@{generator}${color:reset}] | ${mode_text}"/>
+                    <echo level="info" message="${color:reset} | extension: ${color:gray,dim}@{extension}${color:reset}"/>
+                    <echo level="info" message="${color:reset} | package:   ${color:gray,dim}@{package}${color:reset}"/>
+                    <echo level="info" message="${color:reset} | schema:    ${color:gray,dim}@{schema}${color:reset}"/>
                 </then>
             </if>
         </sequential>
